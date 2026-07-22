@@ -1,29 +1,14 @@
-name: ✨ Feature request
-description: Suggest a new storm, task, or capability for StormReady.
+name: Feature request
+description: Suggest an improvement or new idea for StormReady.
 labels: [enhancement]
 body:
   - type: textarea
-    id: problem
+    id: request
     attributes:
-      label: What would you like to add?
-      description: Describe the feature and the player value it delivers.
+      label: What would you like to add or change?
     validations:
       required: true
   - type: textarea
-    id: approach
+    id: benefit
     attributes:
-      label: Suggested approach
-      description: Optional notes on how it might work.
-  - type: dropdown
-    id: area
-    attributes:
-      label: Area
-      options:
-        - New storm scenario
-        - Gameplay / scoring
-        - Visuals / animation
-        - Accessibility
-        - Tooling / developer experience
-        - Other
-    validations:
-      required: true
+      label: Why would it help?
