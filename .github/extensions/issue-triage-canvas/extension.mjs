@@ -144,7 +144,7 @@ function toSearchQuery(filters) {
         segments.push(filters.search);
     }
     for (const label of filters.labels) {
-        segments.push(`label:"${label.replace(/"/g, '\\"')}"`);
+        segments.push(`label:"${label.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`);
     }
     if (filters.priority) {
         segments.push(`label:"${toPriorityLabel(filters.priority)}"`);
