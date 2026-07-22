@@ -1,4 +1,5 @@
 import type { Scenario } from '../../types';
+import { comboMultiplierForStreak } from '../../lib/scoring';
 import { ResilienceGauge } from '../../components/ResilienceGauge';
 import { StormCountdown } from '../../components/StormCountdown';
 import { PrepTaskList } from '../../components/PrepTaskList';
@@ -9,6 +10,7 @@ interface ChallengeScreenProps {
   completedTaskIds: ReadonlySet<string>;
   secondsRemaining: number;
   score: number;
+  currentStreak: number;
   onToggleTask: (taskId: string) => void;
   onFinish: () => void;
   onQuit: () => void;
@@ -20,11 +22,14 @@ export function ChallengeScreen({
   completedTaskIds,
   secondsRemaining,
   score,
+  currentStreak,
   onToggleTask,
   onFinish,
   onQuit,
 }: ChallengeScreenProps) {
   const isFlood = scenario.type === 'flood';
+  const multiplier = comboMultiplierForStreak(currentStreak);
+  const showCombo = currentStreak >= 2;
 
   return (
     <section
@@ -40,6 +45,21 @@ export function ChallengeScreen({
         </div>
         <ResilienceGauge score={score} />
       </header>
+
+      {showCombo && (
+        <div
+          className="challenge__combo"
+          role="status"
+          aria-live="polite"
+          aria-label={`${currentStreak} in a row — combo multiplier ${multiplier}×`}
+        >
+          <span className="challenge__combo-fire" aria-hidden="true">🔥</span>
+          <span className="challenge__combo-text">
+            {currentStreak} in a row
+          </span>
+          <span className="challenge__combo-multiplier">×{multiplier.toFixed(2)}</span>
+        </div>
+      )}
 
       <StormCountdown secondsRemaining={secondsRemaining} totalSeconds={scenario.durationSeconds} />
 

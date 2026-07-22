@@ -26,6 +26,7 @@ export function App() {
             completedTaskIds={challenge.completedTaskIds}
             secondsRemaining={challenge.secondsRemaining}
             score={challenge.score}
+            currentStreak={challenge.currentStreak}
             onToggleTask={challenge.toggleTask}
             onFinish={challenge.finish}
             onQuit={challenge.reset}
