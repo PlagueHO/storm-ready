@@ -1,6 +1,7 @@
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   font-family:
+    Inter,
     'Segoe UI',
     system-ui,
     -apple-system,
@@ -10,18 +11,20 @@
     sans-serif;
   line-height: 1.5;
 
-  --bg-top: #0b1e3f;
-  --bg-bottom: #12264d;
-  --surface: rgba(255, 255, 255, 0.06);
-  --surface-strong: rgba(255, 255, 255, 0.12);
-  --border: rgba(255, 255, 255, 0.14);
-  --text: #eaf1ff;
-  --text-muted: #9fb3d1;
-  --accent: #4cc9f0;
-  --accent-strong: #4361ee;
-  --success: #52d681;
-  --warning: #ffd166;
-  --danger: #ff6b6b;
+  --bg: #f4f7ff;
+  --bg-soft: #e9efff;
+  --surface: #ffffff;
+  --surface-strong: #f2f6ff;
+  --border: #d7e0f6;
+  --text: #00195f;
+  --text-muted: #42588f;
+  --accent: #001272;
+  --accent-strong: #243ecf;
+  --brand-gold: #ffd700;
+  --brand-aqua: #85f7f7;
+  --success: #178857;
+  --warning: #9a6400;
+  --danger: #c22c3f;
 }
 
 * {
@@ -33,8 +36,9 @@ body {
   min-height: 100vh;
   color: var(--text);
   background:
-    radial-gradient(circle at 20% -10%, #1b3a6b 0%, transparent 55%),
-    linear-gradient(160deg, var(--bg-top), var(--bg-bottom));
+    radial-gradient(circle at 10% -8%, rgba(133, 247, 247, 0.36) 0%, transparent 40%),
+    radial-gradient(circle at 88% 4%, rgba(255, 215, 0, 0.28) 0%, transparent 38%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 100%);
   background-attachment: fixed;
 }
 
