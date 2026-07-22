@@ -375,31 +375,13 @@ function renderHtml(defaultFilters) {
         overflow-x: hidden;
         position: relative;
         font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
-        color: var(--text-color-default, #1f2328);
+        color: #1f2937;
         background:
-          radial-gradient(1200px 500px at -10% -10%, rgba(86, 110, 255, 0.24), transparent 60%),
-          radial-gradient(900px 500px at 110% 10%, rgba(233, 75, 221, 0.2), transparent 60%),
-          radial-gradient(800px 400px at 50% 120%, rgba(48, 196, 255, 0.16), transparent 60%),
-          var(--background-color-default, #0b1020);
-      }
-      .sparkles {
-        position: fixed;
-        inset: 0;
-        pointer-events: none;
-        z-index: 0;
-      }
-      .sparkles span {
-        position: absolute;
-        width: 6px;
-        height: 6px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.92);
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 22px rgba(147, 197, 253, 0.45);
-        animation: twinkle 3.5s ease-in-out infinite;
-      }
-      @keyframes twinkle {
-        0%, 100% { opacity: 0.25; transform: scale(0.7); }
-        50% { opacity: 1; transform: scale(1.2); }
+          radial-gradient(1200px 560px at -6% -12%, rgba(99, 102, 241, 0.14), transparent 62%),
+          radial-gradient(980px 520px at 108% 6%, rgba(56, 189, 248, 0.12), transparent 64%),
+          radial-gradient(900px 420px at 50% 118%, rgba(168, 85, 247, 0.1), transparent 68%),
+          linear-gradient(180deg, rgba(245, 248, 253, 0.95), rgba(237, 243, 250, 0.92)),
+          var(--background-color-default, #f1f5f9);
       }
       .shell {
         position: relative;
@@ -434,15 +416,17 @@ function renderHtml(defaultFilters) {
         font-size: 12px;
         font-weight: 600;
         white-space: nowrap;
+        color: #1f2937;
       }
       .panel {
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.09));
-        border: 1px solid rgba(145, 158, 180, 0.35);
+        background: linear-gradient(165deg, rgba(255, 255, 255, 0.62), rgba(237, 244, 252, 0.38));
+        border: 1px solid rgba(184, 194, 208, 0.5);
         border-radius: 16px;
-        backdrop-filter: blur(10px) saturate(150%);
+        backdrop-filter: blur(14px) saturate(130%);
         box-shadow:
-          0 18px 35px rgba(0, 0, 0, 0.18),
-          inset 0 1px 0 rgba(255, 255, 255, 0.28);
+          0 12px 22px rgba(15, 23, 42, 0.1),
+          inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        color: #1f2937;
       }
       .toolbar {
         display: grid;
@@ -468,10 +452,10 @@ function renderHtml(defaultFilters) {
         width: 100%;
         min-height: 36px;
         border-radius: 10px;
-        border: 1px solid rgba(129, 146, 173, 0.45);
+        border: 1px solid rgba(169, 179, 192, 0.62);
         padding: 7px 10px;
-        background: rgba(245, 248, 255, 0.55);
-        color: inherit;
+        background: linear-gradient(165deg, rgba(255, 255, 255, 0.72), rgba(239, 244, 250, 0.52));
+        color: #1f2937;
         outline: none;
         transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.15s ease;
       }
@@ -482,18 +466,18 @@ function renderHtml(defaultFilters) {
       button {
         cursor: pointer;
         font-weight: 600;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.78), rgba(239, 246, 255, 0.66));
+        background: linear-gradient(165deg, rgba(255, 255, 255, 0.7), rgba(237, 243, 250, 0.5));
       }
       button:hover { transform: translateY(-1px); }
       button:active { transform: translateY(0); }
       button.primary {
-        color: #ffffff;
-        border-color: rgba(92, 107, 255, 0.68);
-        background: linear-gradient(140deg, #5f6bff, #7f56d9 45%, #c34ad8 100%);
-        box-shadow: 0 10px 20px rgba(127, 86, 217, 0.35);
+        color: #1f2937;
+        border-color: rgba(158, 171, 187, 0.66);
+        background: linear-gradient(165deg, rgba(255, 255, 255, 0.78), rgba(230, 238, 248, 0.58));
+        box-shadow: 0 8px 14px rgba(99, 123, 157, 0.16);
       }
       button.primary:hover {
-        box-shadow: 0 12px 24px rgba(127, 86, 217, 0.46);
+        box-shadow: 0 10px 18px rgba(99, 123, 157, 0.22);
       }
       .status {
         margin: 12px 0;
@@ -503,8 +487,8 @@ function renderHtml(defaultFilters) {
         border: 1px solid rgba(125, 143, 171, 0.4);
       }
       .status-ok {
-        color: var(--text-color-muted, #57606a);
-        background: rgba(233, 240, 252, 0.45);
+        color: #374151;
+        background: linear-gradient(165deg, rgba(255, 255, 255, 0.68), rgba(236, 243, 250, 0.52));
       }
       .status-error {
         color: #9a2f2f;
@@ -528,12 +512,12 @@ function renderHtml(defaultFilters) {
         padding: 6px 8px;
       }
       tbody tr {
-        background: rgba(255, 255, 255, 0.66);
-        border: 1px solid rgba(143, 157, 183, 0.3);
-        box-shadow: 0 10px 16px rgba(20, 33, 61, 0.12);
+        background: linear-gradient(165deg, rgba(255, 255, 255, 0.64), rgba(236, 242, 249, 0.48));
+        border: 1px solid rgba(188, 197, 208, 0.6);
+        box-shadow: 0 8px 14px rgba(20, 33, 61, 0.07);
       }
       tbody tr:hover {
-        background: rgba(255, 255, 255, 0.78);
+        background: linear-gradient(165deg, rgba(255, 255, 255, 0.74), rgba(240, 246, 252, 0.58));
         transform: translateY(-1px);
       }
       td {
@@ -561,20 +545,22 @@ function renderHtml(defaultFilters) {
         margin-bottom: 7px;
       }
       .label {
-        border: 1px solid rgba(126, 141, 168, 0.42);
+        border: 1px solid rgba(176, 186, 199, 0.62);
         border-radius: 999px;
         padding: 2px 9px;
         font-size: 12px;
-        background: rgba(248, 250, 255, 0.82);
+        background: linear-gradient(165deg, rgba(255, 255, 255, 0.65), rgba(232, 239, 247, 0.48));
+        color: #334155;
       }
       .priority-badge {
         display: inline-block;
         border-radius: 999px;
-        border: 1px solid rgba(124, 99, 255, 0.42);
-        background: linear-gradient(120deg, rgba(92, 107, 255, 0.21), rgba(206, 92, 255, 0.24));
+        border: 1px solid rgba(174, 183, 197, 0.64);
+        background: linear-gradient(165deg, rgba(255, 255, 255, 0.66), rgba(230, 237, 246, 0.5));
         padding: 2px 9px;
         font-size: 12px;
         font-weight: 600;
+        color: #334155;
       }
       .muted { color: var(--text-color-muted, #57606a); }
       .priority-buttons {
@@ -589,9 +575,9 @@ function renderHtml(defaultFilters) {
         font-size: 12px;
       }
       .priority-buttons button.active {
-        color: #fff;
-        border-color: rgba(92, 107, 255, 0.76);
-        background: linear-gradient(145deg, #5f6bff, #8d47d8);
+        color: #1f2937;
+        border-color: rgba(149, 164, 183, 0.72);
+        background: linear-gradient(165deg, rgba(244, 248, 253, 0.76), rgba(226, 235, 246, 0.6));
       }
       .label-editor {
         display: grid;
@@ -618,28 +604,11 @@ function renderHtml(defaultFilters) {
         .hero { flex-direction: column; align-items: flex-start; }
       }
       @media (prefers-reduced-motion: reduce) {
-        .sparkles span, button, tbody tr { animation: none !important; transition: none !important; }
+        button, tbody tr { transition: none !important; }
       }
     </style>
   </head>
   <body>
-    <div class="sparkles" aria-hidden="true">
-      <span style="left:6%; top:8%; animation-delay:0.1s;"></span>
-      <span style="left:19%; top:22%; animation-delay:1.2s;"></span>
-      <span style="left:31%; top:6%; animation-delay:2.1s;"></span>
-      <span style="left:44%; top:18%; animation-delay:0.6s;"></span>
-      <span style="left:58%; top:11%; animation-delay:1.9s;"></span>
-      <span style="left:72%; top:24%; animation-delay:0.4s;"></span>
-      <span style="left:86%; top:9%; animation-delay:2.4s;"></span>
-      <span style="left:10%; top:62%; animation-delay:0.8s;"></span>
-      <span style="left:24%; top:76%; animation-delay:2.9s;"></span>
-      <span style="left:39%; top:67%; animation-delay:1.4s;"></span>
-      <span style="left:53%; top:81%; animation-delay:0.2s;"></span>
-      <span style="left:67%; top:70%; animation-delay:2.6s;"></span>
-      <span style="left:81%; top:84%; animation-delay:1.1s;"></span>
-      <span style="left:93%; top:63%; animation-delay:0.7s;"></span>
-    </div>
-
     <div class="shell">
       <div class="hero">
         <div>
