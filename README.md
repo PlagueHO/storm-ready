@@ -70,6 +70,14 @@ npm run dev -- --host 0.0.0.0 --port 5173
 | `npm run lint`          | Lint the codebase                   |
 | `npm run format`        | Format the codebase with Prettier   |
 
+### GitHub Pages deployment
+
+This repository includes a workflow at `.github/workflows/deploy.yml` that deploys the app to
+GitHub Pages when changes are pushed to `main`.
+
+Before the first deployment, configure **Settings -> Pages** and set **Source** to
+**GitHub Actions**.
+
 ## Project structure
 
 ```
