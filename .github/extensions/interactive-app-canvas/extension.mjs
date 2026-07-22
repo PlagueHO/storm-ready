@@ -3,6 +3,7 @@ import { spawn } from "node:child_process";
 import { promises as fs } from "node:fs";
 import net from "node:net";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { CanvasError, createCanvas, joinSession } from "@github/copilot-sdk/extension";
 
 const PROJECT_CANVAS_ID = "interactive-app-canvas";
@@ -19,15 +20,66 @@ const EXCLUDED_DIRS = new Set(["node_modules", ".git", "dist", "coverage"]);
 const MAX_JSON_BODY_BYTES = 2 * 1024 * 1024;
 const MAX_LOG_LINES = 200;
 const DEV_SERVER_START_TIMEOUT_MS = 45_000;
+const EXTENSION_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
+const PROJECT_ROOT_FROM_EXTENSION = path.resolve(EXTENSION_DIRECTORY, "..", "..", "..");
 
 const canvasServers = new Map();
 const openInstances = new Set();
 const devServerLogs = [];
 
-let workspaceRoot = normalizeWorkspaceRoot(process.cwd());
+let workspaceRoot = normalizeWorkspaceRoot(PROJECT_ROOT_FROM_EXTENSION);
 let devServerProcess = null;
 let devServerPort = null;
 let devServerStartPromise = null;
+
+function normalizeWorkspaceRoot(rootPath) {
+    if (typeof rootPath !== "string" || !rootPath) {
+        return path.resolve(process.cwd());
+    }
+
+    let normalizedPath = rootPath;
+    if (normalizedPath.startsWith("file://")) {
+        normalizedPath = fileURLToPath(normalizedPath);
+    }
+
+    if (process.platform === "win32" && normalizedPath.startsWith("\\\\?\\")) {
+        normalizedPath = normalizedPath.slice(4);
+    }
+
+    return path.resolve(normalizedPath);
+}
+
+async function rootHasPackageJson(rootPath) {
+    try {
+        const packageJsonPath = path.join(rootPath, "package.json");
+        const packageJsonRaw = await fs.readFile(packageJsonPath, "utf8");
+        const packageJson = JSON.parse(packageJsonRaw);
+        return typeof packageJson === "object" && packageJson !== null;
+    } catch {
+        return false;
+    }
+}
+
+async function selectWorkspaceRoot(preferredRoot) {
+    const seen = new Set();
+    const candidates = [preferredRoot, process.cwd(), PROJECT_ROOT_FROM_EXTENSION]
+        .map((candidate) => normalizeWorkspaceRoot(candidate))
+        .filter((candidate) => {
+            if (seen.has(candidate)) {
+                return false;
+            }
+            seen.add(candidate);
+            return true;
+        });
+
+    for (const candidate of candidates) {
+        if (await rootHasPackageJson(candidate)) {
+            return candidate;
+        }
+    }
+
+    return candidates[0] ?? normalizeWorkspaceRoot(PROJECT_ROOT_FROM_EXTENSION);
+}
 
 function appendDevLog(source, chunk) {
     const lines = chunk
@@ -39,17 +91,6 @@ function appendDevLog(source, chunk) {
         devServerLogs.push(`[${source}] ${line}`);
     }
 
-    function normalizeWorkspaceRoot(rootPath) {
-        if (typeof rootPath !== "string" || !rootPath) {
-            return process.cwd();
-        }
-
-        if (process.platform === "win32" && rootPath.startsWith("\\\\?\\")) {
-            return rootPath.slice(4);
-        }
-
-        return rootPath;
-    }
     if (devServerLogs.length > MAX_LOG_LINES) {
         devServerLogs.splice(0, devServerLogs.length - MAX_LOG_LINES);
     }
@@ -234,14 +275,24 @@ async function ensureDevServer() {
 
     devServerStartPromise = (async () => {
         const port = await getFreePort();
-        const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
         const args = ["run", "dev", "--", "--host", "127.0.0.1", "--port", String(port), "--strictPort"];
-        const child = spawn(npmCommand, args, {
-            cwd: workspaceRoot,
-            env: { ...process.env },
-            stdio: ["ignore", "pipe", "pipe"],
-            windowsHide: true,
-        });
+        const resolvedWorkspaceRoot = normalizeWorkspaceRoot(workspaceRoot);
+        appendDevLog("config", `workspaceRoot=${resolvedWorkspaceRoot}`);
+
+        const child =
+            process.platform === "win32"
+                ? spawn(process.env.ComSpec ?? "cmd.exe", ["/d", "/s", "/c", `npm ${args.join(" ")}`], {
+                      cwd: resolvedWorkspaceRoot,
+                      env: { ...process.env },
+                      stdio: ["ignore", "pipe", "pipe"],
+                      windowsHide: true,
+                  })
+                : spawn("npm", args, {
+                      cwd: resolvedWorkspaceRoot,
+                      env: { ...process.env },
+                      stdio: ["ignore", "pipe", "pipe"],
+                      windowsHide: true,
+                  });
 
         child.stdout?.on("data", (chunk) => appendDevLog("stdout", chunk));
         child.stderr?.on("data", (chunk) => appendDevLog("stderr", chunk));
@@ -994,7 +1045,7 @@ const session = await joinSession({
     ],
 });
 
-workspaceRoot = normalizeWorkspaceRoot(session.workspacePath ?? process.cwd());
+workspaceRoot = await selectWorkspaceRoot(session.workspacePath ?? process.cwd());
 await session.log(`Interactive canvas loaded for workspace: ${workspaceRoot}`, {
     level: "info",
     ephemeral: true,
