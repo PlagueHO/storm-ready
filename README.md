@@ -44,6 +44,19 @@ npm install      # install dependencies
 npm run dev      # start the local dev server (http://localhost:5173)
 ```
 
+### Dev Container / Codespaces
+
+This repo includes a preconfigured `.devcontainer` for both GitHub Codespaces and local Docker-based Dev Containers.
+
+- **Codespaces:** open the repo in a new Codespace; dependencies are installed automatically.
+- **Local:** in VS Code, run **Dev Containers: Reopen in Container**.
+
+Then run:
+
+```bash
+npm run dev -- --host 0.0.0.0 --port 5173
+```
+
 ### Useful scripts
 
 | Script                  | What it does                        |
