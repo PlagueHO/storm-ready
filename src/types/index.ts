@@ -37,6 +37,18 @@ export type ChallengePhase = 'picking' | 'preparing' | 'results';
 /** A letter grade summarising how prepared the player was. */
 export type ResilienceGrade = 'A' | 'B' | 'C' | 'D';
 
+/** Per-task breakdown entry included in the outcome recap. */
+export interface TaskResult {
+  readonly taskId: string;
+  readonly taskLabel: string;
+  readonly wasCompleted: boolean;
+  readonly basePoints: number;
+  /** Points earned after applying the combo multiplier (0 if incomplete). */
+  readonly earnedPoints: number;
+  /** Combo multiplier active when this task was last completed (1.0 if not completed). */
+  readonly comboMultiplier: number;
+}
+
 /** The computed result shown on the recap screen once the storm hits. */
 export interface StormOutcome {
   readonly score: number;
@@ -46,4 +58,12 @@ export interface StormOutcome {
   readonly headline: string;
   readonly message: string;
   readonly badges: readonly string[];
+  /** Longest consecutive task-completion streak achieved during the challenge. */
+  readonly bestStreak: number;
+  /** Bonus points earned for finishing with time to spare. */
+  readonly speedBonus: number;
+  /** Combo-boosted total (base points × multipliers + speed bonus). */
+  readonly comboScore: number;
+  /** Ordered breakdown of every task: what was picked, correct answer, and points. */
+  readonly taskBreakdown: readonly TaskResult[];
 }

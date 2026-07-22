@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ChallengePhase, Scenario, StormOutcome } from '../types';
-import { computeOutcome, computeResilienceScore } from '../lib/scoring';
+import { computeOutcome, computeResilienceScore, comboMultiplierForStreak } from '../lib/scoring';
 import { getBestScore, saveBestScore } from '../lib/storage';
 
 interface UseChallenge {
@@ -12,6 +12,8 @@ interface UseChallenge {
   readonly outcome: StormOutcome | null;
   readonly bestScore: number;
   readonly isNewRecord: boolean;
+  /** Current consecutive task-completion streak (resets on uncheck). */
+  readonly currentStreak: number;
   start: (scenario: Scenario) => void;
   toggleTask: (taskId: string) => void;
   finish: () => void;
@@ -32,6 +34,9 @@ export function useChallenge(): UseChallenge {
   const [secondsRemaining, setSecondsRemaining] = useState(0);
   const [outcome, setOutcome] = useState<StormOutcome | null>(null);
   const [isNewRecord, setIsNewRecord] = useState(false);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
+  const [taskComboMap, setTaskComboMap] = useState<Map<string, number>>(new Map());
 
   const start = useCallback((next: Scenario) => {
     setScenario(next);
@@ -39,6 +44,9 @@ export function useChallenge(): UseChallenge {
     setSecondsRemaining(next.durationSeconds);
     setOutcome(null);
     setIsNewRecord(false);
+    setCurrentStreak(0);
+    setBestStreak(0);
+    setTaskComboMap(new Map());
     setPhase('preparing');
   }, []);
 
@@ -47,6 +55,8 @@ export function useChallenge(): UseChallenge {
       if (phase !== 'preparing') {
         return;
       }
+      const isAdding = !completedTaskIds.has(taskId);
+
       setCompletedTaskIds((current) => {
         const next = new Set(current);
         if (next.has(taskId)) {
@@ -56,21 +66,31 @@ export function useChallenge(): UseChallenge {
         }
         return next;
       });
+
+      if (isAdding) {
+        const newStreak = currentStreak + 1;
+        setCurrentStreak(newStreak);
+        setBestStreak((prev) => Math.max(prev, newStreak));
+        const multiplier = comboMultiplierForStreak(newStreak);
+        setTaskComboMap((prev) => new Map(prev).set(taskId, multiplier));
+      } else {
+        setCurrentStreak(0);
+      }
     },
-    [phase],
+    [phase, completedTaskIds, currentStreak],
   );
 
   const finish = useCallback(() => {
     if (!scenario) {
       return;
     }
-    const result = computeOutcome(scenario, completedTaskIds, secondsRemaining);
+    const result = computeOutcome(scenario, completedTaskIds, secondsRemaining, bestStreak, taskComboMap);
     const previousBest = getBestScore(scenario.id);
     saveBestScore(scenario.id, result.score);
     setIsNewRecord(result.score > previousBest);
     setOutcome(result);
     setPhase('results');
-  }, [scenario, completedTaskIds, secondsRemaining]);
+  }, [scenario, completedTaskIds, secondsRemaining, bestStreak, taskComboMap]);
 
   const reset = useCallback(() => {
     setPhase('picking');
@@ -79,6 +99,9 @@ export function useChallenge(): UseChallenge {
     setSecondsRemaining(0);
     setOutcome(null);
     setIsNewRecord(false);
+    setCurrentStreak(0);
+    setBestStreak(0);
+    setTaskComboMap(new Map());
   }, []);
 
   // Drive the countdown while preparing; when it reaches zero, the storm hits.
@@ -110,6 +133,7 @@ export function useChallenge(): UseChallenge {
     outcome,
     bestScore,
     isNewRecord,
+    currentStreak,
     start,
     toggleTask,
     finish,
