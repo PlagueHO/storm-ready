@@ -50,7 +50,7 @@
    ```bash
    npm run dev
    ```
-3. Play one quick round in the browser: pick a scenario → complete prep tasks → hit the results screen (score, grade, badges).
+3. Play one quick round in the browser: pick Flash Flood → use arrow keys or WASD to collect the six safety actions → avoid water and debris → reach high ground → show the results screen.
 4. Call out the shape of the code (no AI files yet):
    - Pure logic: `src/lib/scoring.ts`
    - Static data: `src/data/scenarios.ts`

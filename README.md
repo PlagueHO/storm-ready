@@ -18,7 +18,8 @@ new storms, new mechanics, richer visuals, accessibility passes, and (later) a l
 
 ## Features
 
-- 🌊 Four storm scenarios (flood, cyclone, hail, heatwave), each with themed prep tasks
+- 🌊 Four storm scenarios, with Flash Flood featuring a keyboard and touch race to high ground
+- 🏃 Collectible safety actions, floodwater hazards and storm debris on an interactive map
 - ⏱️ Real-time countdown that builds tension as the storm approaches
 - 📈 Live, weighted resilience score with an animated gauge
 - 🏅 Playful badges and a letter-grade storm outcome
