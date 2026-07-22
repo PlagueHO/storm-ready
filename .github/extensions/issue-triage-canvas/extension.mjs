@@ -368,102 +368,338 @@ function renderHtml(defaultFilters) {
     <title>Issue triage</title>
     <style>
       :root { color-scheme: light dark; }
+      * { box-sizing: border-box; }
       body {
         margin: 0;
-        padding: 16px;
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
         font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
         color: var(--text-color-default, #1f2328);
-        background: var(--background-color-default, #fff);
+        background:
+          radial-gradient(1200px 500px at -10% -10%, rgba(86, 110, 255, 0.24), transparent 60%),
+          radial-gradient(900px 500px at 110% 10%, rgba(233, 75, 221, 0.2), transparent 60%),
+          radial-gradient(800px 400px at 50% 120%, rgba(48, 196, 255, 0.16), transparent 60%),
+          var(--background-color-default, #0b1020);
+      }
+      .sparkles {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .sparkles span {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 22px rgba(147, 197, 253, 0.45);
+        animation: twinkle 3.5s ease-in-out infinite;
+      }
+      @keyframes twinkle {
+        0%, 100% { opacity: 0.25; transform: scale(0.7); }
+        50% { opacity: 1; transform: scale(1.2); }
+      }
+      .shell {
+        position: relative;
+        z-index: 1;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px 16px 24px 16px;
+      }
+      .hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .hero h1 {
+        margin: 0;
+        letter-spacing: -0.3px;
+        font-size: 29px;
+        font-weight: var(--font-weight-semibold, 600);
+      }
+      .hero p {
+        margin: 4px 0 0 0;
+        font-size: 14px;
+        color: var(--text-color-muted, #6e7781);
+      }
+      .hero-pill {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(146, 161, 185, 0.35);
+        background: linear-gradient(130deg, rgba(88, 166, 255, 0.2), rgba(238, 130, 238, 0.17));
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .panel {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.09));
+        border: 1px solid rgba(145, 158, 180, 0.35);
+        border-radius: 16px;
+        backdrop-filter: blur(10px) saturate(150%);
+        box-shadow:
+          0 18px 35px rgba(0, 0, 0, 0.18),
+          inset 0 1px 0 rgba(255, 255, 255, 0.28);
       }
       .toolbar {
         display: grid;
-        grid-template-columns: 140px 1fr 1fr 140px 100px auto;
-        gap: 8px;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 10px;
         align-items: end;
+        padding: 14px;
       }
-      label { display: block; font-size: 12px; color: var(--text-color-muted, #57606a); margin-bottom: 4px; }
-      input, select, button {
-        box-sizing: border-box;
-        width: 100%;
-        border-radius: 6px;
-        border: 1px solid var(--border-color-default, #d0d7de);
-        padding: 6px 8px;
-        background: transparent;
-        color: inherit;
-      }
-      button { cursor: pointer; }
-      #status { margin: 12px 0; font-size: 13px; }
-      table { width: 100%; border-collapse: collapse; font-size: 13px; }
-      th, td { border-bottom: 1px solid var(--border-color-default, #d0d7de); padding: 8px 6px; vertical-align: top; }
-      th { text-align: left; font-weight: 600; }
-      .labels { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
-      .label {
-        border: 1px solid var(--border-color-default, #d0d7de);
-        border-radius: 999px;
-        padding: 1px 8px;
+      .field-state { grid-column: span 2; }
+      .field-search { grid-column: span 3; }
+      .field-labels { grid-column: span 3; }
+      .field-priority { grid-column: span 2; }
+      .field-limit { grid-column: span 1; }
+      .field-refresh { grid-column: span 1; }
+      label {
+        display: block;
         font-size: 12px;
+        color: var(--text-color-muted, #57606a);
+        margin-bottom: 5px;
+        font-weight: 600;
       }
+      input, select, button {
+        width: 100%;
+        min-height: 36px;
+        border-radius: 10px;
+        border: 1px solid rgba(129, 146, 173, 0.45);
+        padding: 7px 10px;
+        background: rgba(245, 248, 255, 0.55);
+        color: inherit;
+        outline: none;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.15s ease;
+      }
+      input:focus, select:focus, button:focus {
+        border-color: var(--color-focus-outline, #2f81f7);
+        box-shadow: 0 0 0 3px rgba(47, 129, 247, 0.24);
+      }
+      button {
+        cursor: pointer;
+        font-weight: 600;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.78), rgba(239, 246, 255, 0.66));
+      }
+      button:hover { transform: translateY(-1px); }
+      button:active { transform: translateY(0); }
+      button.primary {
+        color: #ffffff;
+        border-color: rgba(92, 107, 255, 0.68);
+        background: linear-gradient(140deg, #5f6bff, #7f56d9 45%, #c34ad8 100%);
+        box-shadow: 0 10px 20px rgba(127, 86, 217, 0.35);
+      }
+      button.primary:hover {
+        box-shadow: 0 12px 24px rgba(127, 86, 217, 0.46);
+      }
+      .status {
+        margin: 12px 0;
+        padding: 9px 12px;
+        border-radius: 11px;
+        font-size: 13px;
+        border: 1px solid rgba(125, 143, 171, 0.4);
+      }
+      .status-ok {
+        color: var(--text-color-muted, #57606a);
+        background: rgba(233, 240, 252, 0.45);
+      }
+      .status-error {
+        color: #9a2f2f;
+        background: rgba(255, 227, 227, 0.82);
+        border-color: rgba(203, 73, 73, 0.44);
+      }
+      .table-wrap {
+        overflow: auto;
+        padding: 8px 10px 10px 10px;
+      }
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+        font-size: 13px;
+      }
+      th {
+        text-align: left;
+        font-weight: 600;
+        color: var(--text-color-muted, #57606a);
+        padding: 6px 8px;
+      }
+      tbody tr {
+        background: rgba(255, 255, 255, 0.66);
+        border: 1px solid rgba(143, 157, 183, 0.3);
+        box-shadow: 0 10px 16px rgba(20, 33, 61, 0.12);
+      }
+      tbody tr:hover {
+        background: rgba(255, 255, 255, 0.78);
+        transform: translateY(-1px);
+      }
+      td {
+        padding: 10px 8px;
+        vertical-align: top;
+      }
+      tbody tr td:first-child {
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+        width: 62px;
+        font-weight: 700;
+      }
+      tbody tr td:last-child {
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+      }
+      .empty-row td {
+        text-align: center;
+        color: var(--text-color-muted, #57606a);
+      }
+      .labels {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-bottom: 7px;
+      }
+      .label {
+        border: 1px solid rgba(126, 141, 168, 0.42);
+        border-radius: 999px;
+        padding: 2px 9px;
+        font-size: 12px;
+        background: rgba(248, 250, 255, 0.82);
+      }
+      .priority-badge {
+        display: inline-block;
+        border-radius: 999px;
+        border: 1px solid rgba(124, 99, 255, 0.42);
+        background: linear-gradient(120deg, rgba(92, 107, 255, 0.21), rgba(206, 92, 255, 0.24));
+        padding: 2px 9px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .muted { color: var(--text-color-muted, #57606a); }
       .priority-buttons {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 4px;
-        margin-top: 6px;
+        margin-bottom: 6px;
       }
-      .priority-buttons button { padding: 4px 6px; font-size: 12px; }
+      .priority-buttons button {
+        min-height: 30px;
+        padding: 4px 6px;
+        font-size: 12px;
+      }
+      .priority-buttons button.active {
+        color: #fff;
+        border-color: rgba(92, 107, 255, 0.76);
+        background: linear-gradient(145deg, #5f6bff, #8d47d8);
+      }
       .label-editor {
         display: grid;
         grid-template-columns: 1fr repeat(3, auto);
         gap: 4px;
       }
-      .label-editor button { width: auto; padding: 4px 8px; font-size: 12px; }
-      a { color: var(--text-color-link, #0969da); text-decoration: none; }
+      .label-editor button {
+        width: auto;
+        min-height: 30px;
+        padding: 4px 8px;
+        font-size: 12px;
+      }
+      a {
+        color: var(--text-color-link, #0969da);
+        text-decoration: none;
+        font-weight: 600;
+      }
       a:hover { text-decoration: underline; }
-      .muted { color: var(--text-color-muted, #57606a); }
+      @media (max-width: 1120px) {
+        .field-state, .field-search, .field-labels, .field-priority, .field-limit, .field-refresh { grid-column: span 6; }
+      }
+      @media (max-width: 740px) {
+        .field-state, .field-search, .field-labels, .field-priority, .field-limit, .field-refresh { grid-column: span 12; }
+        .hero { flex-direction: column; align-items: flex-start; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .sparkles span, button, tbody tr { animation: none !important; transition: none !important; }
+      }
     </style>
   </head>
   <body>
-    <div class="toolbar">
-      <div>
-        <label for="state">State</label>
-        <select id="state">
-          <option value="open">open</option>
-          <option value="closed">closed</option>
-          <option value="all">all</option>
-        </select>
-      </div>
-      <div>
-        <label for="search">Search</label>
-        <input id="search" placeholder="auth bug is:open" />
-      </div>
-      <div>
-        <label for="labels">Labels (comma separated)</label>
-        <input id="labels" placeholder="bug,needs-triage" />
-      </div>
-      <div>
-        <label for="priority">Priority</label>
-        <select id="priority">
-          <option value="">Any</option>
-        </select>
-      </div>
-      <div>
-        <label for="limit">Limit</label>
-        <input id="limit" type="number" min="1" max="200" />
-      </div>
-      <button id="refresh">Refresh</button>
+    <div class="sparkles" aria-hidden="true">
+      <span style="left:6%; top:8%; animation-delay:0.1s;"></span>
+      <span style="left:19%; top:22%; animation-delay:1.2s;"></span>
+      <span style="left:31%; top:6%; animation-delay:2.1s;"></span>
+      <span style="left:44%; top:18%; animation-delay:0.6s;"></span>
+      <span style="left:58%; top:11%; animation-delay:1.9s;"></span>
+      <span style="left:72%; top:24%; animation-delay:0.4s;"></span>
+      <span style="left:86%; top:9%; animation-delay:2.4s;"></span>
+      <span style="left:10%; top:62%; animation-delay:0.8s;"></span>
+      <span style="left:24%; top:76%; animation-delay:2.9s;"></span>
+      <span style="left:39%; top:67%; animation-delay:1.4s;"></span>
+      <span style="left:53%; top:81%; animation-delay:0.2s;"></span>
+      <span style="left:67%; top:70%; animation-delay:2.6s;"></span>
+      <span style="left:81%; top:84%; animation-delay:1.1s;"></span>
+      <span style="left:93%; top:63%; animation-delay:0.7s;"></span>
     </div>
 
-    <div id="status" class="muted">Loading issues...</div>
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Issue</th>
-          <th>Labels + Priority</th>
-          <th>Quick actions</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
+    <div class="shell">
+      <div class="hero">
+        <div>
+          <h1>Issue triage</h1>
+          <p>Filter, prioritize, and label issues with fast modern workflows.</p>
+        </div>
+        <div id="repoSummary" class="hero-pill">GitHub issues</div>
+      </div>
+
+      <div class="panel">
+        <div class="toolbar">
+          <div class="field-state">
+            <label for="state">State</label>
+            <select id="state">
+              <option value="open">open</option>
+              <option value="closed">closed</option>
+              <option value="all">all</option>
+            </select>
+          </div>
+          <div class="field-search">
+            <label for="search">Search</label>
+            <input id="search" placeholder="auth bug is:open" />
+          </div>
+          <div class="field-labels">
+            <label for="labels">Labels (comma separated)</label>
+            <input id="labels" placeholder="bug,needs-triage" />
+          </div>
+          <div class="field-priority">
+            <label for="priority">Priority</label>
+            <select id="priority">
+              <option value="">Any</option>
+            </select>
+          </div>
+          <div class="field-limit">
+            <label for="limit">Limit</label>
+            <input id="limit" type="number" min="1" max="200" />
+          </div>
+          <div class="field-refresh">
+            <label>&nbsp;</label>
+            <button id="refresh" class="primary">Refresh</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="status" class="status status-ok">Loading issues...</div>
+
+      <div class="panel table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Issue</th>
+              <th>Labels + Priority</th>
+              <th>Quick actions</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
 
     <script>
       const defaults = ${escapedDefaults};
@@ -476,6 +712,7 @@ function renderHtml(defaultFilters) {
       const refreshEl = document.getElementById("refresh");
       const statusEl = document.getElementById("status");
       const rowsEl = document.getElementById("rows");
+      const repoSummaryEl = document.getElementById("repoSummary");
 
       for (const level of priorities) {
         const option = document.createElement("option");
@@ -506,7 +743,7 @@ function renderHtml(defaultFilters) {
 
       function setStatus(text, isError = false) {
         statusEl.textContent = text;
-        statusEl.className = isError ? "" : "muted";
+        statusEl.className = isError ? "status status-error" : "status status-ok";
       }
 
       async function api(path, options = {}) {
@@ -533,9 +770,11 @@ function renderHtml(defaultFilters) {
         rowsEl.innerHTML = "";
         try {
           const result = await api("/api/issues?" + params.toString());
+          repoSummaryEl.textContent = result.repository;
           setStatus(result.total + " issues in " + result.repository);
           renderRows(result.issues);
         } catch (error) {
+          repoSummaryEl.textContent = "GitHub issues";
           setStatus(error.message, true);
         }
       }
@@ -546,6 +785,9 @@ function renderHtml(defaultFilters) {
         for (const level of [...priorities, ""]) {
           const button = document.createElement("button");
           button.textContent = level || "Clear";
+          if (level && level === issue.priority) {
+            button.className = "active";
+          }
           button.onclick = async () => {
             try {
               setStatus("Updating #" + issue.number + " priority...");
@@ -606,6 +848,14 @@ function renderHtml(defaultFilters) {
       }
 
       function renderRows(issues) {
+        if (issues.length === 0) {
+          const row = document.createElement("tr");
+          row.className = "empty-row";
+          row.innerHTML = '<td colspan="4">No issues match the current filters.</td>';
+          rowsEl.appendChild(row);
+          return;
+        }
+
         for (const issue of issues) {
           const row = document.createElement("tr");
           row.innerHTML = \`
@@ -616,17 +866,24 @@ function renderHtml(defaultFilters) {
             </td>
             <td>
               <div class="labels"></div>
-              <div class="muted">Priority: \${escapeHtml(issue.priority || "none")}</div>
+              <div class="priority-badge">Priority: \${escapeHtml(issue.priority || "none")}</div>
             </td>
             <td></td>
           \`;
 
           const labelsContainer = row.children[2].querySelector(".labels");
-          for (const label of issue.labels) {
+          if (issue.labels.length === 0) {
             const chip = document.createElement("span");
-            chip.className = "label";
-            chip.textContent = label;
+            chip.className = "label muted";
+            chip.textContent = "no labels";
             labelsContainer.appendChild(chip);
+          } else {
+            for (const label of issue.labels) {
+              const chip = document.createElement("span");
+              chip.className = "label";
+              chip.textContent = label;
+              labelsContainer.appendChild(chip);
+            }
           }
 
           const actionsCell = row.children[3];
@@ -637,6 +894,16 @@ function renderHtml(defaultFilters) {
       }
 
       refreshEl.onclick = refresh;
+      searchEl.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          refresh();
+        }
+      });
+      labelsEl.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          refresh();
+        }
+      });
       refresh();
     </script>
   </body>
