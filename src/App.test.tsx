@@ -16,6 +16,8 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: /flash flood warning/i }));
 
     expect(screen.getByRole('heading', { name: /flash flood warning/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /brace for impact/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /race to high ground/i })).toBeInTheDocument();
+    expect(screen.getByRole('application', { name: /flood evacuation map/i })).toBeInTheDocument();
+    expect(screen.getByText(/use arrow keys, WASD or the controls/i)).toBeInTheDocument();
   });
 });
